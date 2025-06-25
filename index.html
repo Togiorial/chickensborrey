@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finestra da Scavare</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f0f0f0;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
+            cursor: crosshair;
+        }
+
+        #game-container {
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        #window {
+            width: 300px;
+            height: 400px;
+            background-color: #c6e2ff;
+            border: 15px solid #8B4513;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,0,0,0.4);
+        }
+
+        #window-frame {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(to right, #8B4513 15px, transparent 15px, transparent 285px, #8B4513 285px),
+                linear-gradient(to bottom, #8B4513 15px, transparent 15px, transparent 385px, #8B4513 385px);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .glass-crack {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400"><path d="M50,50 Q100,30 150,70 T250,150 Q270,200 230,250 T180,350 Q150,380 100,360 T30,300 Q10,250 50,200 T50,50" fill="none" stroke="white" stroke-width="2" opacity="0.3"/></svg>');
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .hole {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.2);
+            transform: scale(0);
+            animation: holeAppear 0.5s forwards;
+            pointer-events: none;
+        }
+
+        @keyframes holeAppear {
+            to { transform: scale(1); }
+        }
+
+        #counter {
+            margin-top: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        #shatter-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+            transition: opacity 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>SCAVA LA FINESTRA!</h1>
+        <div id="window">
+            <div class="glass-crack" id="crack1"></div>
+            <div class="glass-crack" id="crack2"></div>
+            <div class="glass-crack" id="crack3"></div>
+            <div id="window-frame"></div>
+        </div>
+        <div id="counter">Clicks: 0</div>
+    </div>
+    <div id="shatter-effect"></div>
+
+    <audio id="tap-sound" src="https://assets.mixkit.co/active_storage/sfx/2577/2577-preview.mp3" preload="auto"></audio>
+    <audio id="break-sound" src="https://assets.mixkit.co/active_storage/sfx/209/209-preview.mp3" preload="auto"></audio>
+
+    <script>
+        const windowEl = document.getElementById('window');
+        const counterEl = document.getElementById('counter');
+        const cracks = [
+            document.getElementById('crack1'),
+            document.getElementById('crack2'),
+            document.getElementById('crack3')
+        ];
+        const shatterEffect = document.getElementById('shatter-effect');
+        const tapSound = document.getElementById('tap-sound');
+        const breakSound = document.getElementById('break-sound');
+
+        let clicks = 0;
+        const clicksToBreak = 20;
+        let isBroken = false;
+
+        windowEl.addEventListener('click', (e) => {
+            if (isBroken) return;
+
+            // Suono del tocco
+            tapSound.currentTime = 0;
+            tapSound.play();
+
+            // Incrementa contatore
+            clicks++;
+            counterEl.textContent = `Clicks: ${clicks}`;
+
+            // Calcola la posizione relativa corretta considerando i bordi
+            const rect = windowEl.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Crea buco solo se il click è dentro l'area del vetro (escludi i bordi)
+            if (x > 15 && x < rect.width - 15 && y > 15 && y < rect.height - 15) {
+                createHole(x, y);
+            }
+
+            // Mostra crepe progressivamente
+            if (clicks > clicksToBreak * 0.3) cracks[0].style.opacity = 0.3;
+            if (clicks > clicksToBreak * 0.6) cracks[1].style.opacity = 0.5;
+            if (clicks > clicksToBreak * 0.9) cracks[2].style.opacity = 0.7;
+
+            // Rottura finale
+            if (clicks >= clicksToBreak) {
+                breakWindow();
+            }
+        });
+
+        function createHole(x, y) {
+            const hole = document.createElement('div');
+            hole.classList.add('hole');
+            hole.style.left = (x - 15) + 'px';
+            hole.style.top = (y - 15) + 'px';
+            hole.style.width = '30px';
+            hole.style.height = '30px';
+            windowEl.appendChild(hole);
+
+            // Rimuovi buco dopo l'animazione
+            setTimeout(() => {
+                hole.remove();
+            }, 500);
+        }
+
+        function breakWindow() {
+            isBroken = true;
+            breakSound.play();
+            
+            // Effetto di rottura
+            shatterEffect.style.opacity = 0.8;
+            setTimeout(() => {
+                shatterEffect.style.opacity = 0;
+            }, 500);
+
+            // Cambia il cursore
+            document.body.style.cursor = 'default';
+
+            // Cambia colore della finestra per simulare vetro rotto
+            windowEl.style.backgroundColor = 'rgba(135, 206, 235, 0.5)';
+            windowEl.style.backgroundImage = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'400\'><path d=\'M0,0 L300,400 M300,0 L0,400\' stroke=\'white\' stroke-width=\'2\'/></svg>")';
+            
+            // Mostra tutte le crepe
+            cracks.forEach(crack => crack.style.opacity = 0.7);
+
+            // Aggiungi più buchi casuali
+            for (let i = 0; i < 5; i++) {
+                const randomX = Math.random() * (windowEl.clientWidth - 30) + 15;
+                const randomY = Math.random() * (windowEl.clientHeight - 30) + 15;
+                createHole(randomX, randomY);
+            }
+
+            // Messaggio finale
+            setTimeout(() => {
+                counterEl.textContent = 'HAI SCAVATO LA FINESTRA! 😱';
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
