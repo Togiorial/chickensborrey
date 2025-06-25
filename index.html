@@ -3,205 +3,404 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finestra da Scavare</title>
+    <title>Gallina sborrata</title>
     <style>
         body {
             margin: 0;
+            padding: 0;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #f0f0f0;
+            background: linear-gradient(135deg, #48d1cc, #E0F7FA);
             font-family: 'Comic Sans MS', cursive, sans-serif;
             overflow: hidden;
-            background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
-            cursor: crosshair;
         }
-
-        #game-container {
-            text-align: center;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        #window {
-            width: 300px;
-            height: 400px;
-            background-color: #c6e2ff;
-            border: 15px solid #8B4513;
+        
+        .container {
             position: relative;
-            overflow: hidden;
-            box-shadow: 0 0 30px rgba(0,0,0,0.4);
-        }
-
-        #window-frame {
-            position: absolute;
             width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(to right, #8B4513 15px, transparent 15px, transparent 285px, #8B4513 285px),
-                linear-gradient(to bottom, #8B4513 15px, transparent 15px, transparent 385px, #8B4513 385px);
+            max-width: 800px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .title {
+            font-size: 2.5rem;
+            color: #FF6B6B;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+        
+        .shower {
+            position: relative;
+            width: 200px;
+            height: 150px;
+            cursor: pointer;
+            transition: transform 0.2s;
             z-index: 10;
-            pointer-events: none;
         }
-
-        .glass-crack {
+        
+        .shower:hover {
+            transform: translateY(-5px);
+        }
+        
+        .shower-head {
+            width: 120px;
+            height: 20px; /* Più sottile per il getto a spruzzo */
+            background-color: #B0BEC5;
+            border-radius: 10px;
             position: absolute;
-            width: 100%;
-            height: 100%;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400"><path d="M50,50 Q100,30 150,70 T250,150 Q270,200 230,250 T180,350 Q150,380 100,360 T30,300 Q10,250 50,200 T50,50" fill="none" stroke="white" stroke-width="2" opacity="0.3"/></svg>');
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .shower-pipe {
+            width: 20px;
+            height: 80px;
+            background-color: #78909C;
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .shower-base {
+            width: 60px;
+            height: 20px;
+            background-color: #78909C;
+            border-radius: 5px;
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .water-jet {
+            position: absolute;
+            width: 100px;
+            height: 0;
+            background: linear-gradient(to bottom, rgba(1000, 1000, 1000, 1.0), rgba(1000, 1000, 1000, 0.3));
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 0 0 10px 10px;
+            transition: height 0.3s ease-out;
+            z-index: 1;
+            display: none;
+        }
+        
+        .water-splash {
+            position: absolute;
+            width: 150px;
+            height: 30px;
+            background: radial-gradient(circle, rgba(1000, 1000, 1000, 0.8) 0%, rgba(0, 150, 255, 0) 70%);
+            top: 230px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 50%;
             opacity: 0;
             transition: opacity 0.3s;
-            pointer-events: none;
+            z-index: 4;
         }
-
-        .hole {
-            position: absolute;
+        
+        .chicken {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin-top: 80px;
+            z-index: 2;
+            transition: transform 0.3s;
+        }
+        
+        .chicken-body {
+            width: 140px;
+            height: 140px;
+            background-color: #dcdcdc;
             border-radius: 50%;
-            background: rgba(0,0,0,0.2);
-            transform: scale(0);
-            animation: holeAppear 0.5s forwards;
-            pointer-events: none;
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            z-index: 2;
         }
-
-        @keyframes holeAppear {
-            to { transform: scale(1); }
-        }
-
-        #counter {
-            margin-top: 20px;
-            font-size: 24px;
-            color: #333;
-        }
-
-        #shatter-effect {
-            position: fixed;
+        
+        .chicken-head {
+            width: 60px;
+            height: 60px;
+            background-color: #dcdcdc;
+            border-radius: 50%;
+            position: absolute;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: white;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 100;
-            transition: opacity 0.5s;
+            left: 100px;
+            z-index: 3;
         }
+        
+        .chicken-beak {
+            width: 30px;
+            height: 15px;
+            background-color: #FF9800;
+            border-radius: 50%;
+            position: absolute;
+            top: 25px;
+            left: 150px;
+            transform: rotate(15deg);
+            z-index: 4;
+        }
+        
+        .chicken-comb {
+            width: 25px;
+            height: 25px;
+            background-color: #F44336;
+            border-radius: 50% 50% 0 0;
+            position: absolute;
+            top: -15px;
+            left: 110px;
+            z-index: 4;
+        }
+        
+        .chicken-eye {
+            width: 10px;
+            height: 10px;
+            background-color: #000;
+            border-radius: 50%;
+            position: absolute;
+            top: 20px;
+            left: 130px;
+            z-index: 4;
+        }
+        
+        .chicken-leg-left, .chicken-leg-right {
+            width: 12px;
+            height: 40px;
+            background-color: #FF9800;
+            position: absolute;
+            top: 170px;
+            z-index: 1;
+        }
+        
+        .chicken-leg-left {
+            left: 80px;
+            transform: rotate(-5deg);
+        }
+        
+        .chicken-leg-right {
+            left: 110px;
+            transform: rotate(5deg);
+        }
+        
+        .wet-effect {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background-color: rgba(1000, 1000, 1000, 0.8);
+            border-radius: 50%;
+            top: 30px;
+            left: 0;
+            transform: scale(0);
+            transition: transform 0.5s;
+            pointer-events: none;
+            z-index: 3;
+        }
+        
+        .ground {
+            width: 100%;
+            height: 60px;
+            background-color: #8BC34A;
+            position: absolute;
+            bottom: 0;
+            z-index: 1;
+            border-top: 5px solid #689F38;
+        }
+        
+        .instructions {
+            position: absolute;
+            bottom: 20px;
+            font-size: 1.2rem;
+            color: #795548;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .click-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .water-drops {
+            position: absolute;
+            width: 150px;
+            height: 50px;
+            top: 230px;
+            left: 50%;
+            transform: translateX(-50%);
+            overflow: hidden;
+            display: none;
+        }
+        
+        .water-drop {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background-color: rgba(1000, 1000, 1000, 0.7);
+            border-radius: 50%;
+            animation: splash 0.5s forwards;
+            z-index: 5;
+        }
+        
+        @keyframes splash {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0);
+                opacity: 0;
+            }
+        }
+        
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <h1>SCAVA LA FINESTRA!</h1>
-        <div id="window">
-            <div class="glass-crack" id="crack1"></div>
-            <div class="glass-crack" id="crack2"></div>
-            <div class="glass-crack" id="crack3"></div>
-            <div id="window-frame"></div>
+    <div class="container">
+        <h1 class="title">🐔 SBORRATORE DI GALLINE🥛</h1>
+        
+        <div class="click-counter">
+            Sbor count: <span id="count">0</span>
         </div>
-        <div id="counter">Clicks: 0</div>
+        
+        <div class="shower" id="shower">
+            <div class="shower-head"></div>
+            <div class="shower-pipe"></div>
+            <div class="shower-base"></div>
+            
+            <div class="water-jet" id="water-jet"></div>
+            <div class="water-splash" id="water-splash"></div>
+            <div class="water-drops" id="water-drops"></div>
+        </div>
+        
+        <div class="chicken">
+            <div class="chicken-body"></div>
+            <div class="chicken-head"></div>
+            <div class="chicken-beak"></div>
+            <div class="chicken-comb"></div>
+            <div class="chicken-eye"></div>
+            <div class="chicken-leg-left"></div>
+            <div class="chicken-leg-right"></div>
+            <div class="wet-effect" id="wet-effect"></div>
+        </div>
+        
+        <div class="ground"></div>
+        
+        <div class="instructions">
+            Clicca sulla doccia per spruzzare acqua sulla gallina!
+        </div>
     </div>
-    <div id="shatter-effect"></div>
-
-    <audio id="tap-sound" src="https://assets.mixkit.co/active_storage/sfx/2577/2577-preview.mp3" preload="auto"></audio>
-    <audio id="break-sound" src="https://assets.mixkit.co/active_storage/sfx/209/209-preview.mp3" preload="auto"></audio>
-
+    
     <script>
-        const windowEl = document.getElementById('window');
-        const counterEl = document.getElementById('counter');
-        const cracks = [
-            document.getElementById('crack1'),
-            document.getElementById('crack2'),
-            document.getElementById('crack3')
-        ];
-        const shatterEffect = document.getElementById('shatter-effect');
-        const tapSound = document.getElementById('tap-sound');
-        const breakSound = document.getElementById('break-sound');
-
-        let clicks = 0;
-        const clicksToBreak = 20;
-        let isBroken = false;
-
-        windowEl.addEventListener('click', (e) => {
-            if (isBroken) return;
-
-            // Suono del tocco
-            tapSound.currentTime = 0;
-            tapSound.play();
-
-            // Incrementa contatore
-            clicks++;
-            counterEl.textContent = `Clicks: ${clicks}`;
-
-            // Calcola la posizione relativa corretta considerando i bordi
-            const rect = windowEl.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            // Crea buco solo se il click è dentro l'area del vetro (escludi i bordi)
-            if (x > 15 && x < rect.width - 15 && y > 15 && y < rect.height - 15) {
-                createHole(x, y);
-            }
-
-            // Mostra crepe progressivamente
-            if (clicks > clicksToBreak * 0.3) cracks[0].style.opacity = 0.3;
-            if (clicks > clicksToBreak * 0.6) cracks[1].style.opacity = 0.5;
-            if (clicks > clicksToBreak * 0.9) cracks[2].style.opacity = 0.7;
-
-            // Rottura finale
-            if (clicks >= clicksToBreak) {
-                breakWindow();
-            }
-        });
-
-        function createHole(x, y) {
-            const hole = document.createElement('div');
-            hole.classList.add('hole');
-            hole.style.left = (x - 15) + 'px';
-            hole.style.top = (y - 15) + 'px';
-            hole.style.width = '30px';
-            hole.style.height = '30px';
-            windowEl.appendChild(hole);
-
-            // Rimuovi buco dopo l'animazione
-            setTimeout(() => {
-                hole.remove();
-            }, 500);
-        }
-
-        function breakWindow() {
-            isBroken = true;
-            breakSound.play();
+        const shower = document.getElementById('shower');
+        const waterJet = document.getElementById('water-jet');
+        const waterSplash = document.getElementById('water-splash');
+        const waterDrops = document.getElementById('water-drops');
+        const wetEffect = document.getElementById('wet-effect');
+        const countElement = document.getElementById('count');
+        const chicken = document.querySelector('.chicken');
+        
+        let clickCount = 0;
+        
+        shower.addEventListener('click', function() {
+            // Attiva il getto d'acqua rettangolare
+            waterJet.style.display = 'block';
+            waterJet.style.height = '210px';
             
-            // Effetto di rottura
-            shatterEffect.style.opacity = 0.8;
-            setTimeout(() => {
-                shatterEffect.style.opacity = 0;
-            }, 500);
-
-            // Cambia il cursore
-            document.body.style.cursor = 'default';
-
-            // Cambia colore della finestra per simulare vetro rotto
-            windowEl.style.backgroundColor = 'rgba(135, 206, 235, 0.5)';
-            windowEl.style.backgroundImage = 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'400\'><path d=\'M0,0 L300,400 M300,0 L0,400\' stroke=\'white\' stroke-width=\'2\'/></svg>")';
+            // Mostra lo splash quando l'acqua colpisce la gallina
+            waterSplash.style.opacity = '1';
             
-            // Mostra tutte le crepe
-            cracks.forEach(crack => crack.style.opacity = 0.7);
+            // Effetto bagnato sulla gallina
+            wetEffect.style.transform = 'scale(1)';
+            
+            // Reazione della gallina
+            chicken.style.transform = 'translateY(10px) rotate(2deg)';
+            
+            // Crea le gocce di rimbalzo
+            createSplashDrops();
+            
+            // Incrementa il contatore
+            clickCount++;
+            // Mostra e nascondi la scritta
+const message = document.createElement('div');
+message.textContent = ['Sborratore di galline!']
+message.style.position = 'absolute';
+message.style.bottom = '60px';
+message.style.left = '0';
+message.style.right = '0';
+message.style.textAlign = 'left';
+message.style.fontSize = '2.2rem';
+message.style.color = '#FF6B6B';
+message.style.opacity = '0';
+message.style.transition = 'opacity 0.5s';
+document.querySelector('.container').appendChild(message);
 
-            // Aggiungi più buchi casuali
-            for (let i = 0; i < 5; i++) {
-                const randomX = Math.random() * (windowEl.clientWidth - 30) + 15;
-                const randomY = Math.random() * (windowEl.clientHeight - 30) + 15;
-                createHole(randomX, randomY);
-            }
+setTimeout(() => message.style.opacity = '1', 0);
+setTimeout(() => { 
+    message.style.opacity = '0';
+    setTimeout(() => message.remove(), 500);
+}, 1000);
 
-            // Messaggio finale
+            countElement.textContent = clickCount;
+            
+            // Reset animazioni dopo 1 secondo
             setTimeout(() => {
-                counterEl.textContent = 'HAI SCAVATO LA FINESTRA! 😱';
+                waterJet.style.height = '0';
+                waterSplash.style.opacity = '0';
+                wetEffect.style.transform = 'scale(0)';
+                chicken.style.transform = 'translateY(0) rotate(0)';
+                waterDrops.innerHTML = '';
             }, 1000);
+            
+            // Nascondi il getto dopo l'animazione
+            setTimeout(() => {
+                waterJet.style.display = 'none';
+            }, 1300);
+        });
+        
+        function createSplashDrops() {
+            waterDrops.style.display = 'block';
+            const dropsCount = 20;
+            
+            for (let i = 0; i < dropsCount; i++) {
+                const drop = document.createElement('div');
+                drop.classList.add('water-drop');
+                
+                // Imposta posizione e direzione casuale per le gocce di rimbalzo
+                const tx = (Math.random() - 0.5) * 40;
+                const ty = -Math.random() * 30;
+                const size = Math.random() * 4 + 3;
+                const delay = Math.random() * 0.3;
+                
+                drop.style.setProperty('--tx', tx + 'px');
+                drop.style.setProperty('--ty', ty + 'px');
+                drop.style.width = size + 'px';
+                drop.style.height = size + 'px';
+                drop.style.left = Math.random() * 150 + 'px';
+                drop.style.top = Math.random() * 30 + 'px';
+                drop.style.animationDelay = delay + 's';
+                
+                waterDrops.appendChild(drop);
+            }
+            
+            setTimeout(() => {
+                waterDrops.style.display = 'none';
+            }, 500);
         }
     </script>
 </body>
